@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { Employee } from './employee';
+import { Employee } from './employee/employee';
 import { Header } from './header/header';
 import { Home } from './home/home';
 export const routes: Routes = [
