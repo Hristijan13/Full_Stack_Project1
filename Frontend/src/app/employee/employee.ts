@@ -7,14 +7,76 @@ import {MatRadioModule} from '@angular/material/radio';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
+import { FormsModule, NgForm } from '@angular/forms';
+import { Employee as EmployeeModel } from '../employee.model';
+import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
+import { EmployeeService } from '../employee';
+
+
 @Component({
   selector: 'app-employee',
   imports: [MatFormFieldModule,MatInputModule,MatIconModule,MatSelectModule,MatRadioModule,MatCheckboxModule,MatDividerModule,
-    MatButtonModule
+    MatButtonModule, FormsModule,HttpClientModule
   ],
   templateUrl: './employee.html',
   styleUrl: './employee.css',
 })
 export class Employee {
 
+  private employeeService:EmployeeService;
+
+  employee: EmployeeModel = {
+    employeeName: '',
+    employeeContactNumber: '',
+    emmployeeAdress: '',
+    employeeGender: '',
+    employeeDepartment: '',
+    employeeSkills: ''
+  };
+
+  skills : string[] = []
+
+
+  constructor(employeeS: EmployeeService) {
+        this.employeeService = employeeS;
+  }
+  
+  selectGender(gender: string): void {
+          this.employee.employeeGender = gender;
+  }
+  
+  onSkillsChanges(event: any): void {
+        console.log(event)
+        if(event.checked) {
+          this.skills.push(event.source.value);
+
+        }
+        else {
+          this.skills.forEach( (item,index) => {
+            if(item == event.source.value) {
+               this.skills.splice(index,1);
+            } 
+          })
+        }
+
+        this.employee.employeeSkills = this.skills.toString();
+  }
+  checkSkills(skill : string) {
+    return this.employee.employeeSkills != null && this.employee.employeeSkills.includes(skill);
+  }
+  saveEmployee(employeeForm : NgForm) : void {
+      this.employeeService.saveEmployee(this.employee).subscribe({
+        next: (res: EmployeeModel) => {
+             console.log(res);
+             employeeForm.reset();
+             this.employee.employeeGender = '';
+             this.skills = [];
+             this.employee.employeeSkills = '';
+             
+        },
+        error: (err: HttpErrorResponse) => {
+          console.log(err);
+        }
+      })
+  }
 }
