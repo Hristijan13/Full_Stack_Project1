@@ -11,13 +11,13 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { Employee as EmployeeModel } from '../employee.model';
 import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { EmployeeService } from '../employee';
+import { Router, RouterLink } from "@angular/router";
 
 
 @Component({
   selector: 'app-employee',
-  imports: [MatFormFieldModule,MatInputModule,MatIconModule,MatSelectModule,MatRadioModule,MatCheckboxModule,MatDividerModule,
-    MatButtonModule, FormsModule,HttpClientModule
-  ],
+  imports: [MatFormFieldModule, MatInputModule, MatIconModule, MatSelectModule, MatRadioModule, MatCheckboxModule, MatDividerModule,
+    MatButtonModule, FormsModule, HttpClientModule, RouterLink],
   templateUrl: './employee.html',
   styleUrl: './employee.css',
 })
@@ -36,9 +36,10 @@ export class Employee {
 
   skills : string[] = []
 
-
-  constructor(employeeS: EmployeeService) {
+  private router: Router;
+  constructor(employeeS: EmployeeService,routerG: Router) {
         this.employeeService = employeeS;
+        this.router = routerG;
   }
   
   selectGender(gender: string): void {
@@ -72,6 +73,7 @@ export class Employee {
              this.employee.employeeGender = '';
              this.skills = [];
              this.employee.employeeSkills = '';
+             this.router.navigate(["/employee-list"])
              
         },
         error: (err: HttpErrorResponse) => {
