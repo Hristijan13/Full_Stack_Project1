@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
@@ -11,7 +11,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { Employee as EmployeeModel } from '../employee.model';
 import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { EmployeeService } from '../employee';
-import { Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 
 
 @Component({
@@ -21,25 +21,44 @@ import { Router, RouterLink } from "@angular/router";
   templateUrl: './employee.html',
   styleUrl: './employee.css',
 })
-export class Employee {
+export class Employee implements OnInit {
 
   private employeeService:EmployeeService;
 
-  employee: EmployeeModel = {
-    employeeName: '',
-    employeeContactNumber: '',
-    emmployeeAdress: '',
-    employeeGender: '',
-    employeeDepartment: '',
-    employeeSkills: ''
-  };
+    /*employee: EmployeeModel = {
+             employeeName: '',
+             employeeContactNumber: '',
+             emmployeeAdress: '',
+             employeeGender: '',
+             employeeDepartment: '',
+             employeeSkills: ''
+            };
+    */
+  isCreateEmployee: boolean =  false;
+            
+  employee: any;
 
   skills : string[] = []
 
   private router: Router;
-  constructor(employeeS: EmployeeService,routerG: Router) {
+  constructor(employeeS: EmployeeService,routerG: Router,private activatedRoute: ActivatedRoute) {
         this.employeeService = employeeS;
         this.router = routerG;
+  }
+
+  ngOnInit(): void {
+      this.employee = this.activatedRoute.snapshot.data['employee'];
+      console.log(this.employee);
+      if(this.employee && this.employee.employeeId  > 0) {
+          this.isCreateEmployee = false;
+          if(this.employee.employeeSkills != '') {
+             this.skills = [];
+             this.skills = this.employee.employeeSkills.split(',')
+          }
+      }
+      else {
+         this.isCreateEmployee = true;
+      }
   }
   
   selectGender(gender: string): void {
@@ -65,8 +84,12 @@ export class Employee {
   checkSkills(skill : string) {
     return this.employee.employeeSkills != null && this.employee.employeeSkills.includes(skill);
   }
+  
   saveEmployee(employeeForm : NgForm) : void {
-      this.employeeService.saveEmployee(this.employee).subscribe({
+    if(this.isCreateEmployee) {
+
+
+     this.employeeService.saveEmployee(this.employee).subscribe({
         next: (res: EmployeeModel) => {
              console.log(res);
              employeeForm.reset();
@@ -80,5 +103,19 @@ export class Employee {
           console.log(err);
         }
       })
+  }
+  else {
+     this.employeeService.updateEmployee(this.employee).subscribe(
+      {
+         next: (res: EmployeeModel) => {
+            this.router.navigate(["/employee-list"]);
+         },
+         error: (err: HttpErrorResponse) => {
+               console.log(err);
+         }
+      }
+     )
+  }
+    
   }
 }

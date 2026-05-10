@@ -3,11 +3,13 @@ import { Employee } from './employee/employee';
 import { Header } from './header/header';
 import { Home } from './home/home';
 import { EmployeeList } from './employee-list/employee-list';
+import { EmployeeResolver } from './employee-resolver';
 export const routes: Routes = [
     {
         
         path: 'employee',
-        component: Employee
+        component: Employee,
+        resolve: {employee: EmployeeResolver}
     },
 
     {
